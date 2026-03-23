@@ -88,7 +88,6 @@
 
       /* ---- Root container ---- */
       "." + PREFIX + "root {",
-      "  position: fixed;",
       "  z-index: 999999;",
       "  width: 240px;",
       "  font-family: Arial, Helvetica, sans-serif;",
@@ -100,11 +99,8 @@
       "  box-shadow: 0 0 0 1px #8a6420, 0 0 0 3px #1a0830, 0 0 0 4px rgba(180,140,50,0.3), 0 4px 20px rgba(0,0,0,0.5);",
       "  overflow: visible;",
       "}",
-
-      /* ---- Contained mode (inside a container div) ---- */
-      "." + PREFIX + "root." + PREFIX + "contained {",
-      "  position: absolute !important;",
-      "}",
+      "." + PREFIX + "root." + PREFIX + "fixed { position: fixed; }",
+      "." + PREFIX + "root." + PREFIX + "contained { position: absolute; }",
       "." + PREFIX + "root." + PREFIX + "dragging {",
       "  cursor: grabbing !important;",
       "}",
@@ -115,6 +111,7 @@
       /* ---- Title bar ---- */
       "." + PREFIX + "title-bar {",
       "  position: relative;",
+      "  z-index: 5;",
       "  padding: 14px 28px 10px;",
       "  text-align: center;",
       "  cursor: grab;",
@@ -346,11 +343,6 @@
     var root = document.createElement("div");
     root.className = PREFIX + "root";
 
-    if (!cfg.containerId) {
-      var posClass = PREFIX + "pos-" + cfg.position.replace(/\s+/g, "-");
-      root.classList.add(posClass);
-    }
-
     /* ---- Title bar ---- */
     var titleBar = document.createElement("div");
     titleBar.className = PREFIX + "title-bar";
@@ -488,13 +480,20 @@
       return { x: e.clientX, y: e.clientY };
     }
 
-    function convertToExplicitPosition() {
+    var isContained = widget.classList.contains(PREFIX + "contained");
+    var widgetW = 0, widgetH = 0;
+
+    function getContainer() {
+      return isContained ? widget.parentNode : null;
+    }
+
+    function snapToLeftTop() {
       var rect = widget.getBoundingClientRect();
-      var container = cfg.containerId ? widget.parentNode : null;
-      if (container && container !== document.body) {
-        var containerRect = container.getBoundingClientRect();
-        widget.style.left = (rect.left - containerRect.left) + "px";
-        widget.style.top = (rect.top - containerRect.top) + "px";
+      var c = getContainer();
+      if (c) {
+        var cr = c.getBoundingClientRect();
+        widget.style.left = (rect.left - cr.left) + "px";
+        widget.style.top = (rect.top - cr.top) + "px";
       } else {
         widget.style.left = rect.left + "px";
         widget.style.top = rect.top + "px";
@@ -505,16 +504,19 @@
     }
 
     function onStart(e) {
-      if (e.target === closeBtn) return;
+      if (e.target === closeBtn || closeBtn.contains(e.target)) return;
       if (widget.classList.contains(PREFIX + "minimized")) return;
 
       e.preventDefault();
-      convertToExplicitPosition();
+      var rect = widget.getBoundingClientRect();
+      widgetW = rect.width;
+      widgetH = rect.height;
+      snapToLeftTop();
 
       var client = getClient(e);
-      var widgetRect = widget.getBoundingClientRect();
-      offsetX = client.x - widgetRect.left;
-      offsetY = client.y - widgetRect.top;
+      var rect2 = widget.getBoundingClientRect();
+      offsetX = client.x - rect2.left;
+      offsetY = client.y - rect2.top;
 
       isDragging = true;
       widget.classList.add(PREFIX + "dragging");
@@ -525,24 +527,20 @@
       e.preventDefault();
 
       var client = getClient(e);
-      var container = cfg.containerId ? widget.parentNode : null;
-      var newLeft, newTop, maxW, maxH;
+      var newLeft, newTop;
+      var c = getContainer();
 
-      if (container && container !== document.body) {
-        var containerRect = container.getBoundingClientRect();
-        newLeft = client.x - offsetX - containerRect.left;
-        newTop = client.y - offsetY - containerRect.top;
-        maxW = containerRect.width - widget.offsetWidth;
-        maxH = containerRect.height - widget.offsetHeight;
-        newLeft = Math.max(0, Math.min(newLeft, maxW));
-        newTop = Math.max(0, Math.min(newTop, maxH));
+      if (c) {
+        var cr = c.getBoundingClientRect();
+        newLeft = client.x - offsetX - cr.left;
+        newTop = client.y - offsetY - cr.top;
+        newLeft = Math.max(0, Math.min(newLeft, cr.width - widgetW));
+        newTop = Math.max(0, Math.min(newTop, cr.height - widgetH));
       } else {
         newLeft = client.x - offsetX;
         newTop = client.y - offsetY;
-        maxW = window.innerWidth - widget.offsetWidth;
-        maxH = window.innerHeight - widget.offsetHeight;
-        newLeft = Math.max(0, Math.min(newLeft, maxW));
-        newTop = Math.max(0, Math.min(newTop, maxH));
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - widgetW));
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - widgetH));
       }
 
       widget.style.left = newLeft + "px";
@@ -594,16 +592,18 @@
         var pos = getComputedStyle(container).position;
         if (pos === "static") container.style.position = "relative";
         built.root.classList.add(PREFIX + "contained");
+        built.root.style.position = "absolute";
         built.root.style.top = "10px";
         built.root.style.left = "50%";
         built.root.style.transform = "translateX(-50%)";
         container.appendChild(built.root);
-      } else {
-        document.body.appendChild(built.root);
+        return;
       }
-    } else {
-      document.body.appendChild(built.root);
     }
+    built.root.classList.add(PREFIX + "fixed");
+    var posClass = PREFIX + "pos-" + cfg.position.replace(/\s+/g, "-");
+    built.root.classList.add(posClass);
+    document.body.appendChild(built.root);
   }
 
   /* --- Public API --- */
