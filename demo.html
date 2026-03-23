@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackpot Widgets Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a12;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header */
+        .demo-header {
+            text-align: center;
+            padding: 30px 20px 16px;
+        }
+        .demo-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+        }
+        .demo-header p {
+            color: #555;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Widget Switcher Tabs */
+        .widget-switcher {
+            display: flex;
+            gap: 6px;
+            padding: 0 20px 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+        .widget-switcher button {
+            padding: 7px 14px;
+            border: 1px solid #2a2a40;
+            background: #14141f;
+            color: #777;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .widget-switcher button:hover {
+            border-color: #444;
+            color: #aaa;
+        }
+        .widget-switcher button.active {
+            border-color: #5b7fff;
+            color: #5b7fff;
+            background: rgba(91, 127, 255, 0.08);
+        }
+
+        /* Phone Frame */
+        .phone-frame {
+            width: 375px;
+            height: 740px;
+            background: #000;
+            border-radius: 40px;
+            border: 3px solid #1a1a2a;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Phone Status Bar */
+        .phone-status-bar {
+            height: 44px;
+            background: #111118;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #eee;
+            position: relative;
+            z-index: 100;
+        }
+        .phone-status-bar .time { font-size: 14px; font-weight: 700; }
+        .phone-status-bar .icons { display: flex; gap: 5px; align-items: center; }
+        .phone-status-bar .icons .bar { width: 3px; height: 10px; background: #eee; border-radius: 1px; }
+        .phone-status-bar .icons .bar:nth-child(2) { height: 8px; opacity: 0.6; }
+        .phone-status-bar .icons .bar:nth-child(3) { height: 6px; opacity: 0.4; }
+        .phone-status-bar .battery { width: 22px; height: 10px; border: 1px solid #eee; border-radius: 2px; position: relative; }
+        .phone-status-bar .battery::after { content: ''; position: absolute; right: -3px; top: 2px; width: 2px; height: 5px; background: #eee; border-radius: 0 1px 1px 0; }
+        .phone-status-bar .battery .fill { width: 80%; height: 100%; background: #4caf50; border-radius: 1px; }
+
+        /* Phone App Bar */
+        .phone-app-bar {
+            height: 44px;
+            background: #111118;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid #1a1a2a;
+            position: relative;
+            z-index: 100;
+        }
+        .phone-app-bar .app-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #eee;
+        }
+        .phone-app-bar .deposit-btn {
+            background: #2e7d32;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+        .phone-app-bar .balance {
+            color: #4caf50;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Game Content Area */
+        .game-area {
+            position: relative;
+            height: calc(100% - 88px);
+            background: #0d0d18;
+            overflow: hidden;
+        }
+
+        /* Casino Game Screen */
+        .casino-game {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Game Category Tabs */
+        .game-tabs {
+            display: flex;
+            gap: 0;
+            background: #111118;
+            padding: 0 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+        .game-tabs span {
+            padding: 10px 14px;
+            font-size: 11px;
+            color: #555;
+            white-space: nowrap;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s;
+        }
+        .game-tabs span.active {
+            color: #eee;
+            border-bottom-color: #5b7fff;
+        }
+
+        /* Game Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .game-card {
+            aspect-ratio: 1;
+            background: #1a1a28;
+            border-radius: 8px;
+            border: 1px solid #222238;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-card .game-img {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .game-card .game-icon {
+            font-size: 28px;
+            color: #333;
+            font-weight: 700;
+        }
+        .game-card .game-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 4px 6px;
+            background: rgba(0,0,0,0.7);
+            font-size: 8px;
+            color: #888;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Sports Screen */
+        .sports-game {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            display: none;
+        }
+        .sports-game .sports-header {
+            padding: 12px 16px;
+            background: #111118;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .sports-game .sports-header .league-name {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .sports-game .match-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .sports-game .match-row:last-child { border-bottom: none; }
+        .sports-game .match-teams {
+            flex: 1;
+        }
+        .sports-game .team-name {
+            font-size: 13px;
+            color: #ddd;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+        .sports-game .match-time {
+            font-size: 10px;
+            color: #4caf50;
+            font-weight: 600;
+        }
+        .sports-game .match-odds {
+            display: flex;
+            gap: 6px;
+        }
+        .sports-game .odd-btn {
+            width: 52px;
+            height: 36px;
+            background: #1a1a28;
+            border: 1px solid #222238;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ccc;
+        }
+        .sports-game .matches-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px;
+        }
+
+        /* Bottom Bar */
+        .phone-bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #111118;
+            border-top: 1px solid #1a1a2a;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        .phone-bottom-bar .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .phone-bottom-bar .tab-icon {
+            width: 20px;
+            height: 20px;
+            background: #2a2a40;
+            border-radius: 4px;
+        }
+        .phone-bottom-bar .tab-label {
+            font-size: 9px;
+            color: #555;
+        }
+        .phone-bottom-bar .tab-item.active .tab-icon {
+            background: #5b7fff;
+        }
+        .phone-bottom-bar .tab-item.active .tab-label {
+            color: #5b7fff;
+        }
+
+        /* Widget Container - the zone where widgets get injected */
+        #widget-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 50px;
+            z-index: 50;
+            pointer-events: none;
+        }
+        #widget-container > * {
+            pointer-events: auto;
+        }
+
+        /* Info panel */
+        .info-panel {
+            margin-top: 20px;
+            max-width: 375px;
+            width: 100%;
+            padding: 16px 20px;
+            text-align: center;
+        }
+        .info-panel .widget-label {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .info-panel .widget-desc {
+            font-size: 11px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .info-panel .drag-hint {
+            font-size: 10px;
+            color: #333;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Home indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+            z-index: 200;
+        }
+
+        /* Responsive */
+        @media (max-width: 420px) {
+            .phone-frame {
+                width: 100%;
+                border-radius: 0;
+                border: none;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="demo-header">
+        <h1>Jackpot Widgets</h1>
+        <p>Drag widgets around the game screen</p>
+    </div>
+
+    <div class="widget-switcher">
+        <button class="active" data-widget="fire">Fire</button>
+        <button data-widget="mega">Mega Jewels</button>
+        <button data-widget="neon">Cyber Neon</button>
+        <button data-widget="classic">Classic Bar</button>
+        <button data-widget="stacked">Stacked Jewels</button>
+        <button data-widget="sports">Sports</button>
+    </div>
+
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="phone-status-bar">
+            <span class="time">9:41</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div class="icons">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+                <div class="battery"><div class="fill"></div></div>
+            </div>
+        </div>
+
+        <!-- App Bar -->
+        <div class="phone-app-bar">
+            <div class="app-name">CasinoBet</div>
+            <div class="balance">EUR 5,386.40</div>
+            <div class="deposit-btn">DEPOSIT</div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area">
+
+            <!-- Casino Game Content -->
+            <div class="casino-game" id="casino-screen">
+                <div class="game-tabs">
+                    <span class="active">Popular</span>
+                    <span>Jackpots</span>
+                    <span>Slots</span>
+                    <span>Live</span>
+                    <span>Table</span>
+                    <span>New</span>
+                </div>
+                <div class="game-grid" id="game-grid">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- Sports Content (hidden by default) -->
+            <div class="sports-game" id="sports-screen">
+                <div class="sports-header">
+                    <div class="league-name">Champions League - Quarter Finals</div>
+                </div>
+                <div class="matches-list">
+                    <div class="match-row">
+                        <div class="match-teams">
+                            <div class="team-name">Real Madrid</div>
+                            <div class="team-name">Man City</div>
+                            <div class="match-time">Live - 72'</div>
+                        </div>
+                        <div class="match-odds">
+                            <div class="odd-btn">1.65</div>
+                            <div class="odd-btn">4.20</div>
+                            <div class="odd-btn">5.50</div>
+                        </div>
+                    </div>
+                    <div class="match-row">
+                        <div class="match-teams">
+                            <div class="team-name">Arsenal</div>
+                            <div class="team-name">Bayern Munich</div>
+                            <div class="match-time">Live - 55'</div>
+                        </div>
+                        <div class="match-odds">
+                            <div class="odd-btn">2.10</div>
+                            <div class="odd-btn">3.40</div>
+                            <div class="odd-btn">3.20</div>
+                        </div>
+                    </div>
+                    <div class="match-row">
+                        <div class="match-teams">
+                            <div class="team-name">Barcelona</div>
+                            <div class="team-name">PSG</div>
+                            <div class="match-time">Today 21:00</div>
+                        </div>
+                        <div class="match-odds">
+                            <div class="odd-btn">1.90</div>
+                            <div class="odd-btn">3.60</div>
+                            <div class="odd-btn">3.80</div>
+                        </div>
+                    </div>
+                    <div class="match-row">
+                        <div class="match-teams">
+                            <div class="team-name">Inter Milan</div>
+                            <div class="team-name">Dortmund</div>
+                            <div class="match-time">Today 21:00</div>
+                        </div>
+                        <div class="match-odds">
+                            <div class="odd-btn">1.75</div>
+                            <div class="odd-btn">3.80</div>
+                            <div class="odd-btn">4.50</div>
+                        </div>
+                    </div>
+                    <div class="match-row">
+                        <div class="match-teams">
+                            <div class="team-name">Liverpool</div>
+                            <div class="team-name">Atletico</div>
+                            <div class="match-time">Tomorrow 20:00</div>
+                        </div>
+                        <div class="match-odds">
+                            <div class="odd-btn">1.55</div>
+                            <div class="odd-btn">4.00</div>
+                            <div class="odd-btn">6.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget injection zone -->
+            <div id="widget-container"></div>
+
+            <!-- Bottom Nav -->
+            <div class="phone-bottom-bar">
+                <div class="tab-item active">
+                    <div class="tab-icon"></div>
+                    <div class="tab-label">Casino</div>
+                </div>
+                <div class="tab-item">
+                    <div class="tab-icon"></div>
+                    <div class="tab-label">Live</div>
+                </div>
+                <div class="tab-item">
+                    <div class="tab-icon"></div>
+                    <div class="tab-label">Sports</div>
+                </div>
+                <div class="tab-item">
+                    <div class="tab-icon"></div>
+                    <div class="tab-label">Promo</div>
+                </div>
+                <div class="tab-item">
+                    <div class="tab-icon"></div>
+                    <div class="tab-label">Menu</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="home-indicator"></div>
+    </div>
+
+    <div class="info-panel">
+        <div class="widget-label" id="active-widget-label">Fire Jackpot</div>
+        <div class="widget-desc" id="active-widget-desc">Single jackpot with fire theme overlay</div>
+        <div class="drag-hint">Drag the widget by its title bar to reposition</div>
+    </div>
+
+    <!-- Widget Scripts -->
+    <script src="jackpot-widget-fire.js"></script>
+    <script src="jackpot-widget-mega-jewels.js"></script>
+    <script src="jackpot-widget-cyber-neon.js"></script>
+    <script src="jackpot-widget-classic-bar.js"></script>
+    <script src="jackpot-widget-stacked-jewels.js"></script>
+    <script src="jackpot-widget-sports.js"></script>
+
+    <script>
+        // Fill game grid with placeholder game cards
+        var gameNames = [
+            'Hot to Burn', 'Sweet Bonanza', 'Great Rhino', 'Book of Dead',
+            'Starburst', 'Gonzo Quest', 'Wolf Gold', 'Mustang Gold',
+            'Big Bass', 'Gates of Olympus', 'Dog House', 'Fruit Party',
+            'Sugar Rush', 'Gems Bonanza', 'Reactoonz', 'Wild West',
+            'Buffalo King', 'Madame Destiny'
+        ];
+        var gameGrid = document.getElementById('game-grid');
+        gameNames.forEach(function(name) {
+            var card = document.createElement('div');
+            card.className = 'game-card';
+            var icon = document.createElement('div');
+            icon.className = 'game-icon';
+            // Use first two letters as icon
+            icon.textContent = name.substring(0, 2).toUpperCase();
+            card.appendChild(icon);
+            var label = document.createElement('div');
+            label.className = 'game-name';
+            label.textContent = name;
+            card.appendChild(label);
+            gameGrid.appendChild(card);
+        });
+
+        // Widget configs
+        var widgetConfigs = {
+            fire: {
+                global: 'JackpotFireWidget',
+                config: {
+                    name: "Fire Jackpot",
+                    amount: 195.64,
+                    currency: "GHS",
+                    currencySymbol: "GHS",
+                    incrementRate: 0.01,
+                    incrementInterval: 3000,
+                    position: "top-left",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Fire Jackpot",
+                desc: "Single jackpot - fire theme",
+                screen: "casino"
+            },
+            mega: {
+                global: 'JackpotMegaJewelsWidget',
+                config: {
+                    name: "Mega Jackpot",
+                    subtitle: "JEWELS",
+                    amount: 2500000.00,
+                    currency: "EUR",
+                    currencySymbol: "EUR",
+                    incrementRate: 1.23,
+                    incrementInterval: 2000,
+                    position: "top-center",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Mega Jewels",
+                desc: "Single jackpot - premium purple theme",
+                screen: "casino"
+            },
+            neon: {
+                global: 'JackpotCyberNeonWidget',
+                config: {
+                    name: "Cyber Neon",
+                    subtitle: "Jackpot",
+                    amount: 8320000.00,
+                    currency: "EUR",
+                    currencySymbol: "EUR",
+                    incrementRate: 2.50,
+                    incrementInterval: 2000,
+                    position: "top-right",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Cyber Neon",
+                desc: "Single jackpot - tech/cyber theme",
+                screen: "casino"
+            },
+            classic: {
+                global: 'JackpotClassicBarWidget',
+                config: {
+                    name: "Jackpot Jewels",
+                    tiers: [
+                        { name: "Gold", amount: 5036.41, color: "#FFD700" },
+                        { name: "Silver", amount: 2056.25, color: "#C0C0C0" },
+                        { name: "Bronze", amount: 265.91, color: "#CD7F32" }
+                    ],
+                    currency: "EUR",
+                    currencySymbol: "EUR",
+                    incrementRate: 0.05,
+                    incrementInterval: 2000,
+                    position: "top",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Classic Bar",
+                desc: "Multi-level horizontal bar - Gold / Silver / Bronze",
+                screen: "casino"
+            },
+            stacked: {
+                global: 'JackpotStackedJewelsWidget',
+                config: {
+                    name: "Jackpot Jewels",
+                    tiers: [
+                        { name: "Gold", amount: 1000000.00, color: "#FFD700" },
+                        { name: "Silver", amount: 10000.00, color: "#C0C0C0" },
+                        { name: "Bronze", amount: 100.00, color: "#CD7F32" }
+                    ],
+                    currency: "EUR",
+                    currencySymbol: "EUR",
+                    incrementRate: 0.50,
+                    incrementInterval: 2500,
+                    position: "top-left",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Stacked Jewels",
+                desc: "Multi-level vertical card - Gold / Silver / Bronze",
+                screen: "casino"
+            },
+            sports: {
+                global: 'JackpotSportsWidget',
+                config: {
+                    name: "Sports Jackpot",
+                    sport: "football",
+                    amount: 50000.00,
+                    currency: "EUR",
+                    currencySymbol: "EUR",
+                    incrementRate: 0.25,
+                    incrementInterval: 3000,
+                    position: "top-center",
+                    containerId: "widget-container",
+                    draggable: true
+                },
+                label: "Sports Jackpot",
+                desc: "Single jackpot - sports/betting theme",
+                screen: "sports"
+            }
+        };
+
+        var activeWidget = null;
+        var activeKey = null;
+
+        function destroyActive() {
+            if (activeWidget && typeof activeWidget.destroy === 'function') {
+                activeWidget.destroy();
+            }
+            activeWidget = null;
+            // Also clear the container manually in case destroy missed something
+            var container = document.getElementById('widget-container');
+            container.innerHTML = '';
+        }
+
+        function showScreen(type) {
+            var casino = document.getElementById('casino-screen');
+            var sports = document.getElementById('sports-screen');
+            if (type === 'sports') {
+                casino.style.display = 'none';
+                sports.style.display = 'flex';
+            } else {
+                casino.style.display = 'flex';
+                sports.style.display = 'none';
+            }
+        }
+
+        function activateWidget(key) {
+            destroyActive();
+            activeKey = key;
+
+            var wc = widgetConfigs[key];
+            if (!wc) return;
+
+            // Switch screen
+            showScreen(wc.screen);
+
+            // Update info
+            document.getElementById('active-widget-label').textContent = wc.label;
+            document.getElementById('active-widget-desc').textContent = wc.desc;
+
+            // Update tab buttons
+            document.querySelectorAll('.widget-switcher button').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.widget === key);
+            });
+
+            // Init widget
+            var WidgetClass = window[wc.global];
+            if (WidgetClass && typeof WidgetClass.init === 'function') {
+                activeWidget = WidgetClass.init(wc.config);
+            } else {
+                console.warn('Widget not loaded:', wc.global);
+                var container = document.getElementById('widget-container');
+                var msg = document.createElement('div');
+                msg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:12px;text-align:center;';
+                msg.textContent = 'Widget "' + wc.global + '" not loaded';
+                container.appendChild(msg);
+            }
+        }
+
+        // Tab click handlers
+        document.querySelectorAll('.widget-switcher button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                activateWidget(btn.dataset.widget);
+            });
+        });
+
+        // Start with Fire widget
+        window.addEventListener('load', function() {
+            // Small delay to ensure scripts are parsed
+            setTimeout(function() {
+                activateWidget('fire');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
