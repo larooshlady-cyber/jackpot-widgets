@@ -101,11 +101,9 @@
       "  overflow: visible;",
       "}",
 
-      /* ---- Embedded mode ---- */
-      "." + PREFIX + "root." + PREFIX + "embedded {",
-      "  position: relative;",
-      "  top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;",
-      "  transform: none !important;",
+      /* ---- Contained mode (inside a container div) ---- */
+      "." + PREFIX + "root." + PREFIX + "contained {",
+      "  position: absolute !important;",
       "}",
       "." + PREFIX + "root." + PREFIX + "dragging {",
       "  cursor: grabbing !important;",
@@ -593,9 +591,12 @@
     if (cfg.containerId) {
       var container = document.getElementById(cfg.containerId);
       if (container) {
-        if (cfg.draggable) {
-          built.root.style.position = "absolute";
-        }
+        var pos = getComputedStyle(container).position;
+        if (pos === "static") container.style.position = "relative";
+        built.root.classList.add(PREFIX + "contained");
+        built.root.style.top = "10px";
+        built.root.style.left = "50%";
+        built.root.style.transform = "translateX(-50%)";
         container.appendChild(built.root);
       } else {
         document.body.appendChild(built.root);
