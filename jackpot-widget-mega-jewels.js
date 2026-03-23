@@ -351,8 +351,6 @@
     if (!cfg.containerId) {
       var posClass = PREFIX + "pos-" + cfg.position.replace(/\s+/g, "-");
       root.classList.add(posClass);
-    } else {
-      root.classList.add(PREFIX + "embedded");
     }
 
     /* ---- Title bar ---- */
@@ -494,8 +492,15 @@
 
     function convertToExplicitPosition() {
       var rect = widget.getBoundingClientRect();
-      widget.style.left = rect.left + "px";
-      widget.style.top = rect.top + "px";
+      var container = cfg.containerId ? widget.parentNode : null;
+      if (container && container !== document.body) {
+        var containerRect = container.getBoundingClientRect();
+        widget.style.left = (rect.left - containerRect.left) + "px";
+        widget.style.top = (rect.top - containerRect.top) + "px";
+      } else {
+        widget.style.left = rect.left + "px";
+        widget.style.top = rect.top + "px";
+      }
       widget.style.right = "auto";
       widget.style.bottom = "auto";
       widget.style.transform = "none";
