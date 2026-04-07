@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Must Drop - Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d0d18;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* App Bar */
+        .app-bar {
+            height: 48px;
+            background: #111118;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid #1a1a2a;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-name { font-size: 16px; font-weight: 700; }
+        .balance { color: #4caf50; font-size: 13px; font-weight: 600; }
+        .deposit-btn {
+            background: #2e7d32;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tabs */
+        .game-tabs {
+            display: flex;
+            background: #111118;
+            padding: 0 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .game-tabs span {
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #555;
+            white-space: nowrap;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .game-tabs span.active {
+            color: #eee;
+            border-bottom-color: #5b7fff;
+        }
+
+        /* Game Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px;
+        }
+        .game-card {
+            aspect-ratio: 1;
+            background: #1a1a28;
+            border-radius: 8px;
+            border: 1px solid #222238;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-icon {
+            font-size: 28px;
+            color: #333;
+            font-weight: 700;
+        }
+        .game-name {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 4px 6px;
+            background: rgba(0,0,0,0.7);
+            font-size: 8px;
+            color: #888;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-bar">
+        <div class="app-name">CasinoBet</div>
+        <div class="balance">EUR 5,386.40</div>
+        <div class="deposit-btn">DEPOSIT</div>
+    </div>
+
+    <div class="game-tabs">
+        <span class="active">Popular</span>
+        <span>Jackpots</span>
+        <span>Slots</span>
+        <span>Live</span>
+        <span>Table</span>
+        <span>New</span>
+    </div>
+
+    <div class="game-grid" id="game-grid"></div>
+
+    <script src="jackpot-widget-must-drop.js"></script>
+    <script>
+        var gameNames = [
+            'Hot to Burn', 'Sweet Bonanza', 'Great Rhino', 'Book of Dead',
+            'Starburst', 'Gonzo Quest', 'Wolf Gold', 'Mustang Gold',
+            'Big Bass', 'Gates of Olympus', 'Dog House', 'Fruit Party',
+            'Sugar Rush', 'Gems Bonanza', 'Reactoonz', 'Wild West',
+            'Buffalo King', 'Madame Destiny', 'Rise of Merlin', 'Legacy of Dead',
+            'John Hunter', 'Money Train', 'Razor Shark', 'Jammin Jars'
+        ];
+        var grid = document.getElementById('game-grid');
+        gameNames.forEach(function(name) {
+            var card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = '<div class="game-icon">' + name.substring(0,2).toUpperCase() + '</div><div class="game-name">' + name + '</div>';
+            grid.appendChild(card);
+        });
+
+        JackpotMustDropWidget.init({
+            position: "bottom-right",
+            draggable: true
+        });
+    </script>
+</body>
+</html>

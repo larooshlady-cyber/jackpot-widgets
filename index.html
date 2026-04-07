@@ -393,7 +393,7 @@
     </div>
 
     <div class="widget-switcher">
-        <button class="active" data-widget="fire">Fire</button>
+        <button class="active" data-widget="mustdrop">Must Drop</button>
         <button data-widget="mega">Mega Jewels</button>
         <button data-widget="neon">Cyber Neon</button>
         <button data-widget="classic">Classic Bar</button>
@@ -547,7 +547,7 @@
     </div>
 
     <!-- Widget Scripts -->
-    <script src="jackpot-widget-fire.js"></script>
+    <script src="jackpot-widget-must-drop.js"></script>
     <script src="jackpot-widget-mega-jewels.js"></script>
     <script src="jackpot-widget-cyber-neon.js"></script>
     <script src="jackpot-widget-classic-bar.js"></script>
@@ -581,21 +581,21 @@
 
         // Widget configs
         var widgetConfigs = {
-            fire: {
-                global: 'JackpotFireWidget',
+            mustdrop: {
+                global: 'JackpotMustDropWidget',
                 config: {
-                    name: "Fire Jackpot",
-                    amount: 195.64,
-                    currency: "GHS",
-                    currencySymbol: "GHS",
-                    incrementRate: 0.01,
-                    incrementInterval: 3000,
+                    name: "Must Drop",
+                    amount: 18915872.81,
+                    currency: "EUR",
+                    currencySymbol: "\u20AC",
+                    incrementRate: 1.23,
+                    incrementInterval: 2000,
                     position: "top-left",
                     containerId: "widget-container",
                     draggable: true
                 },
-                label: "Fire Jackpot",
-                desc: "Single jackpot - fire theme",
+                label: "Must Drop",
+                desc: "Casino chip jackpot - opt-in/out with minimized bar (double-click to minimize/expand)",
                 screen: "casino"
             },
             mega: {
@@ -765,7 +765,7 @@
         window.addEventListener('load', function() {
             // Small delay to ensure scripts are parsed
             setTimeout(function() {
-                activateWidget('fire');
+                activateWidget('mustdrop');
             }, 100);
         });
     </script>
