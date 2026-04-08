@@ -115,6 +115,7 @@
     imgExpanded.style.width = EXPANDED_W + "px";
     imgExpanded.style.height = EXPANDED_H + "px";
     imgExpanded.style.opacity = "0";
+    imgExpanded.style.pointerEvents = "none";
     inner.appendChild(imgExpanded);
 
     /* opt-in hit area */
@@ -206,18 +207,20 @@
 
     function render() {
       if (expanded) {
-        /* slide down from behind header, cross-fade to expanded image */
+        /* slide down, fade in expanded image on top (closed stays visible for arrows) */
         inner.style.transform = "translateY(0)";
-        imgClosed.style.opacity = "0";
+        imgClosed.style.opacity = "1";
         imgExp.style.opacity = "1";
+        imgExp.style.pointerEvents = "auto";
         arrowsBtn.style.display = "block";
         optBtn.style.display = "block";
         menuBtn.style.display = "block";
       } else {
-        /* slide up behind header, only tip peeks, show closed image */
+        /* slide up behind header, only tip peeks */
         inner.style.transform = "translateY(" + HIDE_Y + "px)";
         imgClosed.style.opacity = "1";
         imgExp.style.opacity = "0";
+        imgExp.style.pointerEvents = "none";
         arrowsBtn.style.display = "block";
         optBtn.style.display = "none";
         menuBtn.style.display = "none";
