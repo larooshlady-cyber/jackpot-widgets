@@ -26,10 +26,13 @@
   function injectStyles() {
     if (document.getElementById(P + "styles")) return;
     var css = [
-      "." + P + "wrap { width:100%; position:absolute; left:0; z-index:99999; display:flex; justify-content:center; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; user-select:none; -webkit-user-select:none; }",
+      /* wrap sits behind the header, slides down */
+      "." + P + "wrap { width:100%; position:absolute; left:0; z-index:90; display:flex; justify-content:center; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; user-select:none; -webkit-user-select:none; }",
 
-      "." + P + "inner { position:relative; overflow:hidden; transition:height 0.25s ease; }",
-      "." + P + "img { display:block; image-rendering:auto; -webkit-backface-visibility:hidden; transform:translateZ(0); cursor:pointer; }",
+      "." + P + "inner { position:relative; width:" + CLOSED_W + "px; height:" + CLOSED_H + "px; transition:transform 0.35s cubic-bezier(.4,0,.2,1); will-change:transform; }",
+
+      /* two images stacked for cross-fade */
+      "." + P + "img { position:absolute; top:0; left:0; display:block; image-rendering:auto; -webkit-backface-visibility:hidden; transform:translateZ(0); cursor:pointer; transition:opacity 0.3s ease; }",
 
       /* opt-in button hit area */
       "." + P + "opt-btn { position:absolute; top:10%; right:52px; width:70px; height:80%; cursor:pointer; background:transparent; border:none; z-index:5; }",
@@ -37,8 +40,8 @@
       /* hamburger hit area */
       "." + P + "menu-btn { position:absolute; top:0; right:0; width:50px; height:100%; cursor:pointer; z-index:5; }",
 
-      /* arrows hit area — bottom center of closed image */
-      "." + P + "arrows-btn { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:80px; height:20px; cursor:pointer; z-index:5; }",
+      /* arrows hit area — bottom center */
+      "." + P + "arrows-btn { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:80px; height:" + TIP_H + "px; cursor:pointer; z-index:5; }",
 
       /* popup menu */
       "." + P + "popup { display:none; position:absolute; top:100%; right:0; margin-top:4px; background:#1a0a35; border:1.5px solid rgba(184,134,11,0.5); border-radius:10px; padding:6px; z-index:10; box-shadow:0 4px 20px rgba(0,0,0,0.6); min-width:44px; }",
@@ -96,10 +99,23 @@
     var inner = document.createElement("div");
     inner.className = P + "inner";
 
-    var img = document.createElement("img");
-    img.className = P + "img";
-    img.draggable = false;
-    inner.appendChild(img);
+    /* two images stacked for cross-fade */
+    var imgClosed = document.createElement("img");
+    imgClosed.className = P + "img";
+    imgClosed.draggable = false;
+    imgClosed.src = IMG_CLOSED;
+    imgClosed.style.width = CLOSED_W + "px";
+    imgClosed.style.height = CLOSED_H + "px";
+    inner.appendChild(imgClosed);
+
+    var imgExpanded = document.createElement("img");
+    imgExpanded.className = P + "img";
+    imgExpanded.draggable = false;
+    imgExpanded.src = IMG_EXPANDED;
+    imgExpanded.style.width = EXPANDED_W + "px";
+    imgExpanded.style.height = EXPANDED_H + "px";
+    imgExpanded.style.opacity = "0";
+    inner.appendChild(imgExpanded);
 
     /* opt-in hit area */
     var optBtn = document.createElement("button");
@@ -172,7 +188,10 @@
     var expanded = false;
     var menuOpen = false;
 
-    var img       = widget.querySelector("." + P + "img");
+    var imgs      = widget.querySelectorAll("." + P + "img");
+    var imgClosed = imgs[0];
+    var imgExp    = imgs[1];
+    var inner     = widget.querySelector("." + P + "inner");
     var optBtn    = widget.querySelector("." + P + "opt-btn");
     var menuBtn   = widget.querySelector("." + P + "menu-btn");
     var arrowsBtn = widget.querySelector("." + P + "arrows-btn");
@@ -182,25 +201,23 @@
     var tcOverlay = widget.querySelector("." + P + "overlay");
     var tcX       = tcOverlay.querySelector("." + P + "modal-x");
 
+    /* collapsed = bar hidden behind header, only tip peeks out */
+    var HIDE_Y = -(CLOSED_H - TIP_H); /* shift up so tip shows */
+
     function render() {
-      var inner = widget.querySelector("." + P + "inner");
       if (expanded) {
-        /* full bar with arrows visible */
-        img.src = IMG_CLOSED;
-        img.style.width = CLOSED_W + "px";
-        img.style.height = CLOSED_H + "px";
-        img.style.marginTop = "0";
-        inner.style.height = CLOSED_H + "px";
+        /* slide down from behind header, cross-fade to expanded image */
+        inner.style.transform = "translateY(0)";
+        imgClosed.style.opacity = "0";
+        imgExp.style.opacity = "1";
         arrowsBtn.style.display = "block";
         optBtn.style.display = "block";
         menuBtn.style.display = "block";
       } else {
-        /* only bottom tip peeks out */
-        img.src = IMG_CLOSED;
-        img.style.width = CLOSED_W + "px";
-        img.style.height = CLOSED_H + "px";
-        img.style.marginTop = -(CLOSED_H - TIP_H) + "px";
-        inner.style.height = TIP_H + "px";
+        /* slide up behind header, only tip peeks, show closed image */
+        inner.style.transform = "translateY(" + HIDE_Y + "px)";
+        imgClosed.style.opacity = "1";
+        imgExp.style.opacity = "0";
         arrowsBtn.style.display = "block";
         optBtn.style.display = "none";
         menuBtn.style.display = "none";
@@ -232,8 +249,8 @@
       setExpanded(!expanded);
     });
 
-    /* clicking the closed image also expands */
-    img.addEventListener("click", function () {
+    /* clicking the tip/closed image expands */
+    imgClosed.addEventListener("click", function () {
       if (!expanded) setExpanded(true);
     });
 
