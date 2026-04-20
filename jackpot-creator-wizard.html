@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jackpot Creator Wizard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #1a2235;
+  --bg-card-hover: #1f2a40;
+  --bg-input: #0f1629;
+  --border: #2a3550;
+  --border-active: #3b82f6;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --purple: #a855f7;
+  --purple-bg: rgba(168, 85, 247, 0.1);
+  --gold: #fbbf24;
+  --gold-bg: rgba(251, 191, 36, 0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --transition: 0.2s ease;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Top Bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.topbar-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+.topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.topbar-breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.topbar-breadcrumb span { color: var(--text-secondary); }
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-ghost {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.btn-ghost:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Layout */
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 57px);
+}
+
+/* Sidebar Stepper */
+.sidebar {
+  width: 280px;
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 57px;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+}
+.sidebar h3 {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.step-item:hover { background: var(--bg-card); }
+.step-item.active {
+  background: var(--accent-glow);
+}
+.step-item.active .step-number {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.step-item.completed .step-number {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: var(--transition);
+  color: var(--text-muted);
+}
+.step-info { flex: 1; }
+.step-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.step-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.step-item.active .step-label { color: var(--accent); }
+.step-connector {
+  width: 2px;
+  height: 16px;
+  background: var(--border);
+  margin-left: 25px;
+}
+.step-connector.completed { background: var(--success); }
+
+/* Template shortcuts */
+.sidebar-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-section h4 {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.template-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 6px;
+  font-family: inherit;
+}
+.template-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+.template-icon {
+  font-size: 16px;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 32px 48px;
+  max-width: 900px;
+}
+
+/* Step Panel */
+.step-panel {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.step-panel.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  margin-bottom: 32px;
+}
+.panel-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.panel-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 560px;
+}
+
+/* Type Cards */
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.type-card {
+  padding: 24px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.type-card:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+.type-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.type-card.selected::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.type-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+.type-card:nth-child(1) .type-icon { background: var(--accent-glow); }
+.type-card:nth-child(2) .type-icon { background: var(--danger-bg); }
+.type-card:nth-child(3) .type-icon { background: var(--purple-bg); }
+.type-card:nth-child(4) .type-icon { background: var(--gold-bg); }
+.type-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.type-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.type-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-popular { background: var(--success-bg); color: var(--success); }
+.tag-advanced { background: var(--warning-bg); color: var(--warning); }
+.tag-complex { background: var(--purple-bg); color: var(--purple); }
+.tag-new { background: var(--accent-glow); color: var(--accent); }
+
+/* Must Drop extra config */
+.conditional-config {
+  display: none;
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--warning);
+}
+.conditional-config.visible { display: block; }
+.conditional-config h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--warning);
+}
+.conditional-config p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.form-label .hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  transition: var(--transition);
+  outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.form-input::placeholder { color: var(--text-muted); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  cursor: pointer;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.form-helper {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.form-helper.warning { color: var(--warning); }
+
+/* Tooltip */
+.tooltip-trigger {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: help;
+  position: relative;
+  flex-shrink: 0;
+}
+.tooltip-trigger:hover .tooltip-content {
+  display: block;
+}
+.tooltip-content {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  width: 260px;
+  line-height: 1.5;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* Payout Model Cards */
+.model-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.model-card {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.model-card:hover { border-color: var(--text-muted); }
+.model-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.model-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.model-card p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.model-card .model-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+/* Simulation Box */
+.simulation-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.simulation-box h4 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.simulation-box h4 .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.sim-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+  margin-bottom: 16px;
+}
+.sim-bar {
+  flex: 1;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+}
+.sim-bar.highlight { opacity: 1; background: var(--success); }
+.sim-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.sim-stat {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-xs);
+}
+.sim-stat .value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.sim-stat .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Volatility Slider */
+.volatility-wrap {
+  margin-bottom: 20px;
+}
+.volatility-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.volatility-labels span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.volatility-labels span.active-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  margin: 8px 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 3px solid var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Section Divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+/* Info Banner */
+.info-banner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.info-banner.blue {
+  background: var(--accent-glow);
+  border: 1px solid rgba(59,130,246,0.2);
+  color: #93c5fd;
+}
+.info-banner.yellow {
+  background: var(--warning-bg);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: #fcd34d;
+}
+.info-banner.red {
+  background: var(--danger-bg);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5;
+}
+.info-banner .banner-icon { font-size: 18px; flex-shrink: 0; }
+
+/* Contribution Section */
+.contrib-summary {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(59,130,246,0.05) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.contrib-summary h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.contrib-meters {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.contrib-meter {
+  flex: 1;
+}
+.meter-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.meter-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.meter-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.meter-bar {
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.meter-fill.player { background: var(--accent); }
+.meter-fill.operator { background: var(--purple); }
+.contrib-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.contrib-stat {
+  text-align: center;
+}
+.contrib-stat .val {
+  font-size: 18px;
+  font-weight: 700;
+}
+.contrib-stat .lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Toggle Switch */
+.toggle-group {
+  display: inline-flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+.toggle-btn {
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Schedule Section */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Widget Preview */
+.widget-preview-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.widget-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.widget-option {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.widget-option:hover { border-color: var(--text-muted); }
+.widget-option.selected { border-color: var(--accent); background: var(--accent-glow); }
+.widget-option h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.widget-option p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.widget-live-preview {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  position: relative;
+  overflow: hidden;
+}
+.preview-phone {
+  width: 200px;
+  height: 360px;
+  background: #000;
+  border-radius: 24px;
+  border: 3px solid #333;
+  overflow: hidden;
+  position: relative;
+}
+.preview-phone-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.preview-phone-header {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+.preview-jackpot-bar {
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+  text-align: center;
+  transition: all 0.5s ease;
+}
+.preview-jackpot-bar .pjb-label {
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--purple);
+  font-weight: 700;
+}
+.preview-jackpot-bar .pjb-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gold);
+  margin: 4px 0;
+  font-variant-numeric: tabular-nums;
+}
+.preview-jackpot-bar .pjb-type {
+  font-size: 7px;
+  color: var(--text-muted);
+}
+.preview-game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+  flex: 1;
+}
+.preview-game {
+  background: #2a2a4a;
+  border-radius: 6px;
+  aspect-ratio: 1;
+}
+.preview-floating-chip {
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--gold) 0%, #d97706 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 16px rgba(251,191,36,0.4);
+  animation: chipBounce 3s ease-in-out infinite;
+  cursor: pointer;
+}
+@keyframes chipBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Review Section */
+.review-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.review-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.review-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--bg-input);
+  border-bottom: 1px solid var(--border);
+}
+.review-card-header h4 {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.review-card-header .edit-link {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+.review-card-header .edit-link:hover { text-decoration: underline; }
+.review-card-body {
+  padding: 16px 20px;
+}
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(42,53,80,0.5);
+  font-size: 13px;
+}
+.review-row:last-child { border-bottom: none; }
+.review-row .rr-label { color: var(--text-secondary); }
+.review-row .rr-value { font-weight: 600; color: var(--text-primary); }
+
+/* RTP Warning */
+.rtp-warning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--warning-bg);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius);
+  margin-top: 16px;
+}
+.rtp-warning .rtp-icon { font-size: 24px; }
+.rtp-warning .rtp-text {
+  font-size: 13px;
+  color: #fcd34d;
+  line-height: 1.5;
+}
+.rtp-warning .rtp-text strong { color: var(--warning); }
+
+/* Bottom Nav */
+.bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+.btn-success {
+  background: var(--success);
+  color: #fff;
+  padding: 12px 32px;
+  font-size: 15px;
+}
+.btn-success:hover { background: #16a34a; }
+
+/* Dry Run Button */
+.btn-outline-accent {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+.btn-outline-accent:hover {
+  background: var(--accent-glow);
+}
+
+/* Dry run results */
+.dryrun-results {
+  display: none;
+  margin-top: 24px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.dryrun-results.visible { display: block; animation: fadeIn 0.4s ease; }
+.dryrun-results h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.dryrun-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.dryrun-stat {
+  text-align: center;
+  padding: 16px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-xs);
+}
+.dryrun-stat .ds-val {
+  font-size: 22px;
+  font-weight: 800;
+}
+.dryrun-stat .ds-lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Currency prefix */
+.input-prefix {
+  position: relative;
+}
+.input-prefix .form-input {
+  padding-left: 32px;
+}
+.input-prefix::before {
+  content: attr(data-prefix);
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Success Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+  max-width: 440px;
+  animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal .modal-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--success-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px;
+}
+.modal h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.modal p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { padding: 24px 20px; }
+  .type-grid { grid-template-columns: 1fr; }
+  .model-cards { grid-template-columns: 1fr; }
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .widget-preview-container { grid-template-columns: 1fr; }
+  .sim-stats { grid-template-columns: 1fr; }
+  .dryrun-grid { grid-template-columns: repeat(2, 1fr); }
+  .contrib-meters { flex-direction: column; }
+  .contrib-bottom { grid-template-columns: 1fr; }
+  .schedule-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">J</div>
+    <div>
+      <div class="topbar-title">Jackpot Creator</div>
+      <div class="topbar-breadcrumb">Dashboard / Jackpots / <span>New Jackpot</span></div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-ghost" onclick="resetWizard()">Discard</button>
+    <button class="btn-ghost" onclick="alert('Draft saved!')">Save Draft</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>Setup Steps</h3>
+    <div class="stepper" id="stepper"></div>
+
+    <div class="sidebar-section">
+      <h4>Quick Start</h4>
+      <button class="template-btn" onclick="applyTemplate('classic')">
+        <span class="template-icon">&#9824;</span> Classic Jackpot
+      </button>
+      <button class="template-btn" onclick="applyTemplate('mustdrop')">
+        <span class="template-icon">&#9829;</span> Must Drop Daily
+      </button>
+      <button class="template-btn" onclick="applyTemplate('multilevel')">
+        <span class="template-icon">&#9830;</span> 3-Tier Progressive
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- STEP 1: Jackpot Type -->
+    <div class="step-panel active" id="panel-0">
+      <div class="panel-header">
+        <h1>Choose Jackpot Type</h1>
+        <p>Select the jackpot mechanic. This determines how and when the jackpot triggers and pays out.</p>
+      </div>
+
+      <div class="type-grid">
+        <div class="type-card selected" data-type="classic" onclick="selectType(this)">
+          <div class="type-icon">&#9824;</div>
+          <h3>Classic Jackpot</h3>
+          <p>Standard progressive jackpot. Pool grows with each bet, triggers randomly based on RNG.</p>
+          <span class="type-tag tag-popular">Most Popular</span>
+        </div>
+        <div class="type-card" data-type="mustdrop" onclick="selectType(this)">
+          <div class="type-icon">&#9829;</div>
+          <h3>Must Drop</h3>
+          <p>Guaranteed to drop before a set amount or time. Creates urgency and drives engagement.</p>
+          <span class="type-tag tag-advanced">High Engagement</span>
+        </div>
+        <div class="type-card" data-type="multilevel" onclick="selectType(this)">
+          <div class="type-icon">&#9830;</div>
+          <h3>Multi-Level</h3>
+          <p>Multiple tiers (Mini, Minor, Major, Grand) with individual contribution and trigger rules.</p>
+          <span class="type-tag tag-complex">Complex Setup</span>
+        </div>
+        <div class="type-card" data-type="frequency" onclick="selectType(this)">
+          <div class="type-icon">&#9827;</div>
+          <h3>Frequency</h3>
+          <p>Optimized for frequent small wins. High hit rate keeps players engaged with steady payouts.</p>
+          <span class="type-tag tag-new">New</span>
+        </div>
+      </div>
+
+      <!-- Must Drop conditional -->
+      <div class="conditional-config" id="mustdrop-config">
+        <h4>Must Drop Trigger Rule</h4>
+        <p>Define when the jackpot is guaranteed to drop. This is required for Must Drop type.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Drop Trigger</label>
+            <select class="form-select" id="drop-trigger">
+              <option value="amount">By Amount (drops before reaching...)</option>
+              <option value="time">By Time (drops before...)</option>
+              <option value="both">By Amount OR Time (whichever first)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Amount Before Drop</label>
+            <div class="input-prefix" data-prefix="$">
+              <input type="number" class="form-input" placeholder="10,000" value="10000">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <hr class="section-divider">
+      <div class="form-group">
+        <label class="form-label">Jackpot Name <span class="hint">(internal use only)</span></label>
+        <input type="text" class="form-input" id="jackpot-name" placeholder="e.g. Summer Mega Drop 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description <span class="hint">(optional)</span></label>
+        <textarea class="form-textarea" placeholder="Internal notes about this jackpot configuration..."></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 2: Payout Model -->
+    <div class="step-panel" id="panel-1">
+      <div class="panel-header">
+        <h1>Payout Model</h1>
+        <p>Configure how the jackpot pays out. This directly impacts your margin and player experience.</p>
+      </div>
+
+      <div class="model-cards">
+        <div class="model-card" data-model="fixed" onclick="selectModel(this)">
+          <div class="model-icon">&#9632;</div>
+          <h4>Fixed Payout</h4>
+          <p>Always pays the exact same amount. Predictable costs, no surprises.</p>
+        </div>
+        <div class="model-card" data-model="average" onclick="selectModel(this)">
+          <div class="model-icon">&#9650;</div>
+          <h4>Average Payout</h4>
+          <p>Pays around a target average with variance controlled by volatility.</p>
+        </div>
+        <div class="model-card selected" data-model="maximum" onclick="selectModel(this)">
+          <div class="model-icon">&#9733;</div>
+          <h4>Maximum Payout</h4>
+          <p>Pays up to a defined maximum. Most exciting for players, highest variance.</p>
+        </div>
+      </div>
+
+      <div class="info-banner blue">
+        <span class="banner-icon">&#8505;</span>
+        <div><strong>Maximum Payout</strong> selected &mdash; the jackpot can pay anything between min and max. Higher volatility means rarer but larger wins. Monitor the simulation below as you adjust.</div>
+      </div>
+
+      <!-- Simulation -->
+      <div class="simulation-box">
+        <h4><span class="live-dot"></span> Live Win Distribution (10,000 simulated spins)</h4>
+        <div class="sim-chart" id="sim-chart"></div>
+        <div class="sim-stats">
+          <div class="sim-stat">
+            <div class="value" id="sim-median">$2,340</div>
+            <div class="label">Median Win</div>
+          </div>
+          <div class="sim-stat">
+            <div class="value" id="sim-68pct">$800 &ndash; $4,200</div>
+            <div class="label">68% of Wins Fall Here</div>
+          </div>
+          <div class="sim-stat">
+            <div class="value" id="sim-maxhit">~4.2%</div>
+            <div class="label">Chance of Max Hit</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Minimum Win Amount
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">The lowest possible jackpot payout. Set this to cover at least the seed amount for sustainable economics.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" id="min-win" value="500" oninput="updateSimulation()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Maximum Win Amount
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">The highest possible payout. For "Must Drop" types, this is typically the drop trigger amount.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" id="max-win" value="10000" oninput="updateSimulation()">
+          </div>
+        </div>
+      </div>
+
+      <div class="volatility-wrap">
+        <label class="form-label">Volatility</label>
+        <input type="range" min="0" max="100" value="50" id="volatility" oninput="updateSimulation()">
+        <div class="volatility-labels">
+          <span id="vol-low">Low</span>
+          <span id="vol-med" class="active-label">Medium</span>
+          <span id="vol-high">High</span>
+        </div>
+        <div class="form-helper" id="vol-desc">Balanced mix of small and large wins. Good for most jackpot types.</div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Minimum Wager to Qualify</label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" value="0.50" step="0.10">
+          </div>
+          <div class="form-helper">Players must bet at least this amount to be eligible</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Maximum Wager Contribution</label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" value="100" step="1">
+          </div>
+          <div class="form-helper">Cap on how much a single bet can contribute</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Contribution & Economics -->
+    <div class="step-panel" id="panel-2">
+      <div class="panel-header">
+        <h1>Contribution & Economics</h1>
+        <p>Define how the jackpot pool grows. This is the financial core &mdash; get this right.</p>
+      </div>
+
+      <!-- Live Financial Summary -->
+      <div class="contrib-summary">
+        <h4>&#9632; Financial Summary <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(updates live)</span></h4>
+        <div class="contrib-meters">
+          <div class="contrib-meter">
+            <div class="meter-header">
+              <span class="meter-label">Player Contribution</span>
+              <span class="meter-value" id="player-pct-display">2%</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill player" id="player-meter" style="width:40%"></div>
+            </div>
+          </div>
+          <div class="contrib-meter">
+            <div class="meter-header">
+              <span class="meter-label">Operator Contribution</span>
+              <span class="meter-value" id="operator-pct-display" style="color:var(--purple)">1%</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill operator" id="operator-meter" style="width:20%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="contrib-bottom">
+          <div class="contrib-stat">
+            <div class="val" id="cs-player" style="color:var(--accent)">$40</div>
+            <div class="lbl">Player puts in / 1K spins</div>
+          </div>
+          <div class="contrib-stat">
+            <div class="val" id="cs-operator" style="color:var(--purple)">$20</div>
+            <div class="lbl">Operator puts in / 1K spins</div>
+          </div>
+          <div class="contrib-stat">
+            <div class="val" id="cs-growth" style="color:var(--success)">$60</div>
+            <div class="lbl">Jackpot grows / 1K spins</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seed & Buffer -->
+      <div class="info-banner yellow">
+        <span class="banner-icon">&#9888;</span>
+        <div><strong>Seed amount</strong> is what players see when the jackpot starts or resets after a win. <strong>Buffer cap</strong> is your maximum operator exposure &mdash; contributions stop once this ceiling is reached.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Seed Amount
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">Starting value displayed to players. Industry typical range: $1,000 &ndash; $25,000. Higher seeds attract more play but increase your upfront cost.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" id="seed-amount" value="5000" oninput="updateContrib()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Buffer Cap
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">Maximum operator liability. When the pool exceeds this amount, operator contributions pause. Set to 5-10x the seed for healthy economics.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" id="buffer-cap" value="50000">
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Contribution Split -->
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">Contribution Split</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Player Contribution %
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">Percentage of each qualifying bet that goes to the jackpot pool. Deducted from the game's RTP. Typical: 1-3%.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="%">
+            <input type="number" class="form-input" id="player-pct" value="2" step="0.1" min="0" max="10" oninput="updateContrib()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Operator Contribution %</label>
+          <div class="input-prefix" data-prefix="%">
+            <input type="number" class="form-input" id="operator-pct" value="1" step="0.1" min="0" max="10" oninput="updateContrib()">
+          </div>
+        </div>
+      </div>
+
+      <!-- RTP Impact -->
+      <div class="rtp-warning" id="rtp-warning">
+        <div class="rtp-icon">&#9888;</div>
+        <div class="rtp-text">
+          <strong>RTP Impact:</strong> A <span id="rtp-impact">2%</span> player contribution reduces each game's effective RTP by the same amount. If a slot has 96% RTP, it becomes <span id="rtp-effective">94%</span> with this jackpot. Ensure this stays within your jurisdiction's regulatory minimums.
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select">
+            <option>USD ($)</option>
+            <option>EUR (&euro;)</option>
+            <option>GBP (&pound;)</option>
+            <option>GEL (&#8382;)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Average Bet Size <span class="hint">(for projection)</span></label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" id="avg-bet" value="2" step="0.5" oninput="updateContrib()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Schedule & Limits -->
+    <div class="step-panel" id="panel-3">
+      <div class="panel-header">
+        <h1>Schedule & Limits</h1>
+        <p>Control when the jackpot is active and set safety caps to manage your budget.</p>
+      </div>
+
+      <div class="schedule-grid">
+        <div class="form-group">
+          <label class="form-label">Start Date & Time</label>
+          <input type="datetime-local" class="form-input" value="2026-04-25T00:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Date & Time <span class="hint">(optional)</span></label>
+          <input type="datetime-local" class="form-input" value="2026-07-25T23:59">
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="info-banner blue">
+        <span class="banner-icon">&#8505;</span>
+        <div>Safety limits protect your budget. When any limit is reached, the jackpot pauses and you'll receive an alert. Players see "Jackpot Coming Soon" instead of the live counter.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Maximum Number of Wins
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">Total number of jackpot wins allowed during this period. Set to 0 for unlimited.</span>
+            </span>
+          </label>
+          <input type="number" class="form-input" value="100" placeholder="0 = unlimited">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Maximum Total Payout
+            <span class="tooltip-trigger">?
+              <span class="tooltip-content">Total combined payout budget. The jackpot auto-pauses when this is reached.</span>
+            </span>
+          </label>
+          <div class="input-prefix" data-prefix="$">
+            <input type="number" class="form-input" value="500000">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cooldown After Win <span class="hint">(minutes)</span></label>
+          <input type="number" class="form-input" value="0" placeholder="0 = no cooldown">
+          <div class="form-helper">Time before the jackpot reseeds and becomes eligible again</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Eligible Games</label>
+          <select class="form-select">
+            <option>All Slots</option>
+            <option>Selected Games Only</option>
+            <option>All Games (Slots + Table)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Widget & Display -->
+    <div class="step-panel" id="panel-4">
+      <div class="panel-header">
+        <h1>Widget & Display</h1>
+        <p>Choose how the jackpot appears to players in your lobby and game pages.</p>
+      </div>
+
+      <div class="form-group" style="margin-bottom:24px;">
+        <label class="form-label">Player Opt-in</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="toggleOptIn(this)">Automatic</button>
+          <button class="toggle-btn" onclick="toggleOptIn(this)">Manual</button>
+        </div>
+        <div class="form-helper" style="margin-top:8px;">Automatic: all eligible players participate. Manual: players must opt in via the widget.</div>
+      </div>
+
+      <div class="widget-preview-container">
+        <div class="widget-options">
+          <div class="widget-option selected" onclick="selectWidget(this, 'floating')">
+            <h4>Floating Widget</h4>
+            <p>Draggable chip overlay that follows the player. Non-intrusive, always accessible. Best for must-drop urgency.</p>
+          </div>
+          <div class="widget-option" onclick="selectWidget(this, 'bar')">
+            <h4>Top Bar</h4>
+            <p>Sticky banner under the header showing live jackpot amount. High visibility, great for lobby pages.</p>
+          </div>
+          <div class="widget-option" onclick="selectWidget(this, 'inline')">
+            <h4>Inline Card</h4>
+            <p>Embedded card in the game grid. Blends with your lobby layout. Best for multi-level displays.</p>
+          </div>
+          <div class="widget-option" onclick="selectWidget(this, 'minimal')">
+            <h4>Minimal Counter</h4>
+            <p>Small counter badge in the game header. Subtle, doesn't compete with game content.</p>
+          </div>
+        </div>
+
+        <div class="widget-live-preview">
+          <div class="preview-phone">
+            <div class="preview-phone-screen">
+              <div class="preview-phone-header">CASINO LOBBY</div>
+              <div class="preview-jackpot-bar" id="preview-bar">
+                <div class="pjb-label">MEGA JACKPOT</div>
+                <div class="pjb-amount" id="preview-amount">$5,000</div>
+                <div class="pjb-type" id="preview-type">Classic &bull; Must Drop at $10,000</div>
+              </div>
+              <div class="preview-game-grid">
+                <div class="preview-game"></div>
+                <div class="preview-game"></div>
+                <div class="preview-game"></div>
+                <div class="preview-game"></div>
+                <div class="preview-game"></div>
+                <div class="preview-game"></div>
+              </div>
+            </div>
+            <div class="preview-floating-chip" id="preview-chip" title="Floating jackpot widget">&#9733;</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Win Animation</label>
+          <select class="form-select">
+            <option>Confetti + Counter Spin</option>
+            <option>Gold Rain</option>
+            <option>Simple Flash</option>
+            <option>None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Win Sound</label>
+          <select class="form-select">
+            <option>Jackpot Fanfare</option>
+            <option>Coin Cascade</option>
+            <option>Subtle Chime</option>
+            <option>None (Muted)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6: Review & Launch -->
+    <div class="step-panel" id="panel-5">
+      <div class="panel-header">
+        <h1>Review & Launch</h1>
+        <p>Double-check everything before going live. Click any section to edit.</p>
+      </div>
+
+      <div class="review-grid">
+        <div class="review-card">
+          <div class="review-card-header">
+            <h4>&#9824; Jackpot Type</h4>
+            <span class="edit-link" onclick="goToStep(0)">Edit</span>
+          </div>
+          <div class="review-card-body">
+            <div class="review-row"><span class="rr-label">Type</span><span class="rr-value" id="rv-type">Classic Jackpot</span></div>
+            <div class="review-row"><span class="rr-label">Name</span><span class="rr-value" id="rv-name">Summer Mega Drop 2026</span></div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card-header">
+            <h4>&#9650; Payout Model</h4>
+            <span class="edit-link" onclick="goToStep(1)">Edit</span>
+          </div>
+          <div class="review-card-body">
+            <div class="review-row"><span class="rr-label">Model</span><span class="rr-value" id="rv-model">Maximum Payout</span></div>
+            <div class="review-row"><span class="rr-label">Win Range</span><span class="rr-value" id="rv-range">$500 &ndash; $10,000</span></div>
+            <div class="review-row"><span class="rr-label">Volatility</span><span class="rr-value" id="rv-volatility">Medium (50%)</span></div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card-header">
+            <h4>&#9632; Economics</h4>
+            <span class="edit-link" onclick="goToStep(2)">Edit</span>
+          </div>
+          <div class="review-card-body">
+            <div class="review-row"><span class="rr-label">Seed Amount</span><span class="rr-value" id="rv-seed">$5,000</span></div>
+            <div class="review-row"><span class="rr-label">Buffer Cap</span><span class="rr-value" id="rv-buffer">$50,000</span></div>
+            <div class="review-row"><span class="rr-label">Player / Operator Split</span><span class="rr-value" id="rv-split">2% / 1%</span></div>
+            <div class="review-row"><span class="rr-label">RTP Impact</span><span class="rr-value" id="rv-rtp" style="color:var(--warning)">-2.0%</span></div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card-header">
+            <h4>&#128197; Schedule</h4>
+            <span class="edit-link" onclick="goToStep(3)">Edit</span>
+          </div>
+          <div class="review-card-body">
+            <div class="review-row"><span class="rr-label">Active Period</span><span class="rr-value">Apr 25 &ndash; Jul 25, 2026</span></div>
+            <div class="review-row"><span class="rr-label">Max Wins</span><span class="rr-value">100</span></div>
+            <div class="review-row"><span class="rr-label">Max Total Payout</span><span class="rr-value">$500,000</span></div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card-header">
+            <h4>&#127918; Widget</h4>
+            <span class="edit-link" onclick="goToStep(4)">Edit</span>
+          </div>
+          <div class="review-card-body">
+            <div class="review-row"><span class="rr-label">Widget Type</span><span class="rr-value" id="rv-widget">Floating Widget</span></div>
+            <div class="review-row"><span class="rr-label">Opt-in</span><span class="rr-value">Automatic</span></div>
+            <div class="review-row"><span class="rr-label">Win Animation</span><span class="rr-value">Confetti + Counter Spin</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dry Run -->
+      <hr class="section-divider">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+        <button class="btn-outline-accent" onclick="runDryRun()">&#9654; Run 10,000 Spin Simulation</button>
+        <span style="font-size:13px;color:var(--text-muted);">See projected costs before going live</span>
+      </div>
+
+      <div class="dryrun-results" id="dryrun-results">
+        <h4>Simulation Results (10,000 spins)</h4>
+        <div class="dryrun-grid">
+          <div class="dryrun-stat">
+            <div class="ds-val" style="color:var(--success)">$1,200</div>
+            <div class="ds-lbl">Total Pool Growth</div>
+          </div>
+          <div class="dryrun-stat">
+            <div class="ds-val" style="color:var(--accent)">14</div>
+            <div class="ds-lbl">Jackpots Triggered</div>
+          </div>
+          <div class="dryrun-stat">
+            <div class="ds-val" style="color:var(--gold)">$3,420</div>
+            <div class="ds-lbl">Avg Win Amount</div>
+          </div>
+          <div class="dryrun-stat">
+            <div class="ds-val" style="color:var(--danger)">$47,880</div>
+            <div class="ds-lbl">Total Payout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav (all steps) -->
+    <div class="bottom-nav">
+      <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="visibility:hidden;">&#8592; Back</button>
+      <div style="display:flex;gap:12px;">
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Continue &#8594;</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="success-modal">
+  <div class="modal">
+    <div class="modal-icon">&#10003;</div>
+    <h2>Jackpot Created!</h2>
+    <p>Your jackpot is scheduled and will go live on Apr 25, 2026. You can monitor performance from the dashboard.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Back to Jackpots</button>
+      <button class="btn btn-primary" onclick="closeModal()">View Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Steps config
+const steps = [
+  { label: 'Jackpot Type', desc: 'Mechanic & basics' },
+  { label: 'Payout Model', desc: 'Win logic & volatility' },
+  { label: 'Economics', desc: 'Contribution & margins' },
+  { label: 'Schedule', desc: 'Timing & limits' },
+  { label: 'Widget', desc: 'Player-facing display' },
+  { label: 'Review', desc: 'Confirm & launch' },
+];
+
+let currentStep = 0;
+let completedSteps = new Set();
+
+// Build stepper
+function buildStepper() {
+  const el = document.getElementById('stepper');
+  el.innerHTML = '';
+  steps.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'step-item' + (i === currentStep ? ' active' : '') + (completedSteps.has(i) ? ' completed' : '');
+    item.onclick = () => goToStep(i);
+    item.innerHTML = `
+      <div class="step-number">${completedSteps.has(i) ? '&#10003;' : i + 1}</div>
+      <div class="step-info">
+        <div class="step-label">${s.label}</div>
+        <div class="step-desc">${s.desc}</div>
+      </div>
+    `;
+    el.appendChild(item);
+    if (i < steps.length - 1) {
+      const conn = document.createElement('div');
+      conn.className = 'step-connector' + (completedSteps.has(i) ? ' completed' : '');
+      el.appendChild(conn);
+    }
+  });
+}
+
+function goToStep(idx) {
+  if (currentStep < steps.length - 1) completedSteps.add(currentStep);
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + idx).classList.add('active');
+  currentStep = idx;
+  buildStepper();
+  updateNav();
+  updateReview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+  if (currentStep === steps.length - 1) {
+    document.getElementById('success-modal').classList.add('visible');
+    return;
+  }
+  completedSteps.add(currentStep);
+  goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  if (currentStep > 0) goToStep(currentStep - 1);
+}
+
+function updateNav() {
+  document.getElementById('btn-back').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btn-next');
+  if (currentStep === steps.length - 1) {
+    btnNext.innerHTML = '&#9733; Launch Jackpot';
+    btnNext.className = 'btn btn-success';
+  } else {
+    btnNext.innerHTML = 'Continue &#8594;';
+    btnNext.className = 'btn btn-primary';
+  }
+}
+
+// Type selection
+function selectType(card) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  const type = card.dataset.type;
+  document.getElementById('mustdrop-config').classList.toggle('visible', type === 'mustdrop');
+}
+
+// Model selection
+function selectModel(card) {
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  updateSimulation();
+}
+
+// Simulation
+function updateSimulation() {
+  const min = parseInt(document.getElementById('min-win').value) || 500;
+  const max = parseInt(document.getElementById('max-win').value) || 10000;
+  const vol = parseInt(document.getElementById('volatility').value);
+  const chart = document.getElementById('sim-chart');
+
+  // Generate distribution bars
+  const bars = 30;
+  chart.innerHTML = '';
+  const range = max - min;
+  const center = min + range * 0.3;
+  const spread = (vol / 100) * range * 0.8;
+
+  for (let i = 0; i < bars; i++) {
+    const x = min + (range * i / bars);
+    const dist = Math.exp(-0.5 * Math.pow((x - center) / (spread + 1), 2));
+    const height = Math.max(4, dist * 80);
+    const bar = document.createElement('div');
+    bar.className = 'sim-bar' + (i > bars * 0.2 && i < bars * 0.6 ? ' highlight' : '');
+    bar.style.height = height + 'px';
+    chart.appendChild(bar);
+  }
+
+  // Stats
+  const median = Math.round(min + range * (0.2 + vol * 0.003));
+  const lo68 = Math.round(min + range * 0.05);
+  const hi68 = Math.round(min + range * (0.3 + vol * 0.005));
+  const maxChance = (1 + vol * 0.08).toFixed(1);
+
+  document.getElementById('sim-median').textContent = '$' + median.toLocaleString();
+  document.getElementById('sim-68pct').textContent = '$' + lo68.toLocaleString() + ' \u2013 $' + hi68.toLocaleString();
+  document.getElementById('sim-maxhit').textContent = '~' + maxChance + '%';
+
+  // Volatility labels
+  const labels = ['vol-low', 'vol-med', 'vol-high'];
+  labels.forEach(l => document.getElementById(l).classList.remove('active-label'));
+  const desc = document.getElementById('vol-desc');
+  if (vol < 33) {
+    document.getElementById('vol-low').classList.add('active-label');
+    desc.textContent = 'Frequent small wins. Lower excitement but steady engagement. Best for frequency jackpots.';
+  } else if (vol < 67) {
+    document.getElementById('vol-med').classList.add('active-label');
+    desc.textContent = 'Balanced mix of small and large wins. Good for most jackpot types.';
+  } else {
+    document.getElementById('vol-high').classList.add('active-label');
+    desc.textContent = 'Rare but massive wins. Maximum excitement. Best for classic & must-drop jackpots.';
+  }
+}
+
+// Contribution
+function updateContrib() {
+  const playerPct = parseFloat(document.getElementById('player-pct').value) || 0;
+  const operatorPct = parseFloat(document.getElementById('operator-pct').value) || 0;
+  const avgBet = parseFloat(document.getElementById('avg-bet').value) || 2;
+  const totalPct = playerPct + operatorPct;
+
+  document.getElementById('player-pct-display').textContent = playerPct + '%';
+  document.getElementById('operator-pct-display').textContent = operatorPct + '%';
+  document.getElementById('player-meter').style.width = (playerPct / 5 * 100) + '%';
+  document.getElementById('operator-meter').style.width = (operatorPct / 5 * 100) + '%';
+
+  const playerPer1k = (1000 * avgBet * playerPct / 100);
+  const operatorPer1k = (1000 * avgBet * operatorPct / 100);
+  document.getElementById('cs-player').textContent = '$' + playerPer1k.toFixed(0);
+  document.getElementById('cs-operator').textContent = '$' + operatorPer1k.toFixed(0);
+  document.getElementById('cs-growth').textContent = '$' + (playerPer1k + operatorPer1k).toFixed(0);
+
+  // RTP
+  document.getElementById('rtp-impact').textContent = playerPct + '%';
+  document.getElementById('rtp-effective').textContent = (96 - playerPct).toFixed(1) + '%';
+}
+
+// Widget
+function selectWidget(el, type) {
+  document.querySelectorAll('.widget-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const chip = document.getElementById('preview-chip');
+  const bar = document.getElementById('preview-bar');
+  chip.style.display = type === 'floating' ? 'flex' : 'none';
+  bar.style.display = type === 'minimal' ? 'none' : 'block';
+}
+
+function toggleOptIn(btn) {
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Review
+function updateReview() {
+  if (currentStep !== 5) return;
+  const selectedType = document.querySelector('.type-card.selected');
+  if (selectedType) document.getElementById('rv-type').textContent = selectedType.querySelector('h3').textContent;
+  const name = document.getElementById('jackpot-name').value;
+  if (name) document.getElementById('rv-name').textContent = name;
+  const selectedModel = document.querySelector('.model-card.selected');
+  if (selectedModel) document.getElementById('rv-model').textContent = selectedModel.querySelector('h4').textContent;
+  const minWin = document.getElementById('min-win').value;
+  const maxWin = document.getElementById('max-win').value;
+  document.getElementById('rv-range').textContent = '$' + parseInt(minWin).toLocaleString() + ' \u2013 $' + parseInt(maxWin).toLocaleString();
+  const vol = document.getElementById('volatility').value;
+  const volLabel = vol < 33 ? 'Low' : vol < 67 ? 'Medium' : 'High';
+  document.getElementById('rv-volatility').textContent = volLabel + ' (' + vol + '%)';
+  document.getElementById('rv-seed').textContent = '$' + parseInt(document.getElementById('seed-amount').value).toLocaleString();
+  document.getElementById('rv-buffer').textContent = '$' + parseInt(document.getElementById('buffer-cap').value).toLocaleString();
+  const pp = document.getElementById('player-pct').value;
+  const op = document.getElementById('operator-pct').value;
+  document.getElementById('rv-split').textContent = pp + '% / ' + op + '%';
+  document.getElementById('rv-rtp').textContent = '-' + pp + '%';
+  const selectedWidget = document.querySelector('.widget-option.selected');
+  if (selectedWidget) document.getElementById('rv-widget').textContent = selectedWidget.querySelector('h4').textContent;
+}
+
+// Dry run
+function runDryRun() {
+  const el = document.getElementById('dryrun-results');
+  el.classList.add('visible');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Templates
+function applyTemplate(type) {
+  if (type === 'classic') {
+    document.querySelector('[data-type="classic"]').click();
+    document.getElementById('jackpot-name').value = 'Classic Progressive';
+    document.getElementById('min-win').value = 1000;
+    document.getElementById('max-win').value = 25000;
+    document.getElementById('volatility').value = 60;
+    document.getElementById('seed-amount').value = 5000;
+    document.getElementById('player-pct').value = 2;
+    document.getElementById('operator-pct').value = 1;
+  } else if (type === 'mustdrop') {
+    document.querySelector('[data-type="mustdrop"]').click();
+    document.getElementById('jackpot-name').value = 'Daily Must Drop';
+    document.getElementById('min-win').value = 100;
+    document.getElementById('max-win').value = 5000;
+    document.getElementById('volatility').value = 30;
+    document.getElementById('seed-amount').value = 1000;
+    document.getElementById('player-pct').value = 1.5;
+    document.getElementById('operator-pct').value = 0.5;
+  } else if (type === 'multilevel') {
+    document.querySelector('[data-type="multilevel"]').click();
+    document.getElementById('jackpot-name').value = '3-Tier Progressive';
+    document.getElementById('min-win').value = 50;
+    document.getElementById('max-win').value = 50000;
+    document.getElementById('volatility').value = 75;
+    document.getElementById('seed-amount').value = 10000;
+    document.getElementById('player-pct').value = 3;
+    document.getElementById('operator-pct').value = 1;
+  }
+  updateSimulation();
+  updateContrib();
+}
+
+function resetWizard() {
+  currentStep = 0;
+  completedSteps.clear();
+  goToStep(0);
+}
+
+function closeModal() {
+  document.getElementById('success-modal').classList.remove('visible');
+}
+
+// Animate preview amount
+function animatePreviewAmount() {
+  const el = document.getElementById('preview-amount');
+  const seed = parseInt(document.getElementById('seed-amount')?.value) || 5000;
+  let current = seed;
+  setInterval(() => {
+    current += Math.random() * 3;
+    el.textContent = '$' + current.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }, 100);
+}
+
+// Init
+buildStepper();
+updateSimulation();
+updateContrib();
+animatePreviewAmount();
+</script>
+</body>
+</html>
